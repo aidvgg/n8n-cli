@@ -79,10 +79,7 @@ func parseNode(m map[string]interface{}, index int) *ParsedNode {
 		RawJSON:          rawCopy,
 	}
 
-	if tv, ok := m["typeVersion"]; ok {
-		node.TypeVersion = intField(m, "typeVersion")
-		_ = tv
-	}
+	node.TypeVersion = intField(m, "typeVersion")
 
 	if pos, ok := m["position"].([]interface{}); ok && len(pos) >= 2 {
 		node.Position[0] = toFloat64(pos[0])
@@ -217,31 +214,33 @@ func Rehydrate(pw *ParsedWorkflow) map[string]interface{} {
 	return result
 }
 
+// rehydrateNode starts from the raw node so settings the parser does not model
+// (retryOnFail, maxTries, waitBetweenTries, continueOnFail, executeOnce,
+// notesInFlow, webhookId) survive an edit, then overwrites the modelled fields
+// with their current parsed values.
 func rehydrateNode(n *ParsedNode) map[string]interface{} {
-	m := map[string]interface{}{
-		"name":        n.Name,
-		"type":        n.Type,
-		"typeVersion": n.TypeVersion,
-		"position":    []interface{}{n.Position[0], n.Position[1]},
-		"parameters":  n.Parameters,
+	m := make(map[string]interface{}, len(n.RawJSON)+7)
+	for k, v := range n.RawJSON {
+		m[k] = v
 	}
-	if n.ID != "" {
-		m["id"] = n.ID
-	}
-	if n.Disabled {
-		m["disabled"] = true
-	}
-	if n.AlwaysOutputData {
-		m["alwaysOutputData"] = true
-	}
+	m["name"] = n.Name
+	m["type"] = n.Type
+	m["typeVersion"] = n.TypeVersion
+	m["position"] = []interface{}{n.Position[0], n.Position[1]}
+	m["parameters"] = n.Parameters
+	m["disabled"] = n.Disabled
+	m["alwaysOutputData"] = n.AlwaysOutputData
 	if len(n.Credentials) > 0 {
 		m["credentials"] = n.Credentials
+	} else {
+		delete(m, "credentials")
 	}
-	if n.Notes != "" {
-		m["notes"] = n.Notes
-	}
-	if n.OnError != "" {
-		m["onError"] = n.OnError
+	for k, v := range map[string]string{"id": n.ID, "notes": n.Notes, "onError": n.OnError} {
+		if v != "" {
+			m[k] = v
+		} else {
+			delete(m, k)
+		}
 	}
 	return m
 }

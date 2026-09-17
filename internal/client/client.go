@@ -147,7 +147,12 @@ func sanitizeSettingsForUpdate(v interface{}) interface{} {
 	return clean
 }
 
-// sanitizeNodeForUpdate keeps only the common writable node properties.
+// sanitizeNodeForUpdate keeps the node properties the n8n public API accepts.
+// Its node schema sets additionalProperties:false, so a key outside this list
+// triggers "request/body must NOT have additional properties", while every key
+// inside it is a real user setting that must survive a save. Source:
+// n8n/packages/cli/src/public-api/v1/handlers/workflows/spec/schemas/node.yml
+// (createdAt and updatedAt are in that schema but marked readOnly).
 func sanitizeNodeForUpdate(v interface{}) interface{} {
 	node, ok := v.(map[string]interface{})
 	if !ok || node == nil {
@@ -156,7 +161,10 @@ func sanitizeNodeForUpdate(v interface{}) interface{} {
 	clean := make(map[string]interface{}, len(node))
 	for k, val := range node {
 		switch k {
-		case "id", "name", "type", "typeVersion", "position", "parameters", "credentials", "disabled", "notes", "onError", "webhookId":
+		case "id", "name", "type", "typeVersion", "position", "parameters", "credentials",
+			"webhookId", "disabled", "notes", "notesInFlow", "executeOnce", "alwaysOutputData",
+			"retryOnFail", "maxTries", "waitBetweenTries", "continueOnFail", "onError",
+			"customTelemetryTags":
 			clean[k] = val
 		}
 	}
