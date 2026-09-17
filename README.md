@@ -21,7 +21,7 @@ Every node gets a stable ref (`n0`, `n1`, …) by array position, so agents and 
 Requires **Go 1.22+**.
 
 ```bash
-git clone <repo-url> && cd n8n-cli
+git clone https://github.com/aidvgg/n8n-cli.git && cd n8n-cli
 go build -o n8n-cli .
 ```
 
