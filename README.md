@@ -318,5 +318,3 @@ go build -o n8n-cli .
 - **CLI framework**: [spf13/cobra](https://github.com/spf13/cobra) + pflag
 - **Config**: [spf13/viper](https://github.com/spf13/viper)
 - **HTTP client**: [go-resty/resty/v2](https://github.com/go-resty/resty)
-- **JSON querying**: [tidwall/gjson](https://github.com/tidwall/gjson) + [tidwall/sjson](https://github.com/tidwall/sjson)
-- **Logging**: [go.uber.org/zap](https://github.com/uber-go/zap)
