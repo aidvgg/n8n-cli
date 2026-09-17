@@ -124,7 +124,7 @@ func TestParseEdges(t *testing.T) {
 		t.Fatalf("expected 2 edges, got %d", len(pw.Edges))
 	}
 
-	// Don't rely on iteration order — look for both edges by content
+	// Don't rely on iteration order, look for both edges by content
 	edgeSet := make(map[string]bool)
 	for _, e := range pw.Edges {
 		edgeSet[e.FromName+"->"+e.ToName] = true
@@ -506,14 +506,14 @@ func TestRawJSONPreservation(t *testing.T) {
 		t.Errorf("expected RawJSON[type]=n8n-nodes-base.httpRequest, got %v", raw["type"])
 	}
 
-	// RawJSON should be a deep copy — mutating it shouldn't affect the ParsedNode
+	// RawJSON should be a deep copy, mutating it shouldn't affect the ParsedNode
 	params, ok := raw["parameters"].(map[string]interface{})
 	if !ok {
 		t.Fatal("expected RawJSON[parameters] to be a map")
 	}
 	params["url"] = "MUTATED"
 	if httpNode.Parameters["url"] == "MUTATED" {
-		t.Error("RawJSON is not a deep copy — mutation leaked to ParsedNode.Parameters")
+		t.Error("RawJSON is not a deep copy, mutation leaked to ParsedNode.Parameters")
 	}
 }
 
@@ -667,7 +667,7 @@ func TestSnapshotNodeIsolation(t *testing.T) {
 	params["url"] = "MUTATED"
 
 	if httpNode.Parameters["url"] == "MUTATED" {
-		t.Error("SnapshotNode is not isolated — mutation leaked to original node")
+		t.Error("SnapshotNode is not isolated, mutation leaked to original node")
 	}
 }
 
