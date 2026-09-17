@@ -83,7 +83,7 @@ Nodes can be referenced in four ways:
 | Format | Example | Description |
 |--------|---------|-------------|
 | Bare name | `"HTTP Request"` | Match by name (must be unique) |
-| `ref:` | `ref:n0` | By stable parser-assigned ref |
+| `ref:` | `ref:n0` | By parser-assigned positional ref (renumbers after a delete) |
 | `id:` | `id:abc-123-uuid` | By n8n node UUID |
 | `name:` | `name:"HTTP Request"` | Explicit name match |
 
@@ -301,7 +301,7 @@ internal/
 **Key design decisions:**
 
 - n8n connections are keyed by source node **name** (not ID), so rename operations must update connection keys
-- The parser assigns stable refs (`n0`, `n1`, …) by array position in the workflow's `nodes[]` array
+- The parser assigns positional refs (`n0`, `n1`, …) by array position in the workflow's `nodes[]` array
 - `node get --view json` returns the exact native n8n node object, safe for copy-paste into other tools
 - `node update` returns a before/after diff showing which fields changed
 
