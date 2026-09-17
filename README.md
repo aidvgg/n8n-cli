@@ -43,6 +43,7 @@ Set your n8n instance credentials via environment variables, config file, or CLI
 ```bash
 export N8N_BASE_URL=http://localhost:5678   # default
 export N8N_API_KEY=your-api-key             # required
+export N8N_TIMEOUT=30s                      # per-request HTTP timeout, default
 ```
 
 ### Config file
@@ -52,6 +53,7 @@ Create `~/.n8n-cli.yaml` (or `.n8n-cli.yaml` in the working directory):
 ```yaml
 base-url: http://localhost:5678
 api-key: your-api-key
+timeout: 30s
 ```
 
 ### CLI flags
@@ -69,6 +71,7 @@ n8n-cli --base-url http://my-n8n:5678 --api-key <key> workflow list
 | `--output` | Output mode: `summary`, `resolved`, `raw` |
 | `--json` | Force JSON output |
 | `--yaml` | Force YAML output |
+| `--timeout` | HTTP request timeout, e.g. `45s` or `2m`; `0` disables it (default `30s`, env: `N8N_TIMEOUT`) |
 | `--dry-run` | Preview changes without applying |
 | `--quiet` | Suppress non-essential output |
 | `--no-color` | Disable color output |

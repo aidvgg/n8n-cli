@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -12,17 +13,21 @@ import (
 type Client struct {
 	http    *resty.Client
 	baseURL string
+	timeout time.Duration
 }
 
-func New(baseURL, apiKey string) *Client {
+// New builds a client. timeout bounds every request so an unresponsive n8n
+// instance cannot hang the CLI forever; zero means no timeout.
+func New(baseURL, apiKey string, timeout time.Duration) *Client {
 	base := strings.TrimRight(baseURL, "/")
 	r := resty.New().
 		SetBaseURL(base+"/api/v1").
+		SetTimeout(timeout).
 		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
 		SetHeader("X-N8N-API-KEY", apiKey)
 
-	return &Client{http: r, baseURL: base}
+	return &Client{http: r, baseURL: base, timeout: timeout}
 }
 
 func (c *Client) BaseURL() string {
@@ -32,7 +37,6 @@ func (c *Client) BaseURL() string {
 type APIError struct {
 	StatusCode int
 	Message    string
-	Body       string
 }
 
 func (e *APIError) Error() string {
@@ -44,14 +48,13 @@ func checkResponse(resp *resty.Response) error {
 		return nil
 	}
 	msg := resp.Status()
-	body := string(resp.Body())
 	var parsed map[string]interface{}
 	if err := json.Unmarshal(resp.Body(), &parsed); err == nil {
 		if m, ok := parsed["message"]; ok {
 			msg = fmt.Sprintf("%v", m)
 		}
 	}
-	return &APIError{StatusCode: resp.StatusCode(), Message: msg, Body: body}
+	return &APIError{StatusCode: resp.StatusCode(), Message: msg}
 }
 
 // --- Workflow endpoints ---
@@ -339,7 +342,7 @@ func (c *Client) StopExecution(id string) (map[string]interface{}, error) {
 // --- Webhook helper ---
 
 func (c *Client) SendWebhook(url string, method string, headers map[string]string, payload []byte) (int, []byte, error) {
-	r := resty.New()
+	r := resty.New().SetTimeout(c.timeout)
 	req := r.R()
 	for k, v := range headers {
 		req.SetHeader(k, v)

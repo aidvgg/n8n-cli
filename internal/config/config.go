@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -18,9 +19,11 @@ const (
 	KeyQuiet   = "quiet"
 	KeyNoColor = "no_color"
 	KeyDryRun  = "dry_run"
+	KeyTimeout = "timeout"
 
 	DefaultBaseURL = "http://localhost:5678"
 	DefaultOutput  = "summary"
+	DefaultTimeout = 30 * time.Second
 )
 
 func Init() {
@@ -33,11 +36,13 @@ func Init() {
 	viper.SetDefault(KeyQuiet, false)
 	viper.SetDefault(KeyNoColor, false)
 	viper.SetDefault(KeyDryRun, false)
+	viper.SetDefault(KeyTimeout, DefaultTimeout)
 
 	viper.SetEnvPrefix("N8N")
 	viper.AutomaticEnv()
 	viper.BindEnv(KeyBaseURL, "N8N_BASE_URL")
 	viper.BindEnv(KeyAPIKey, "N8N_API_KEY")
+	viper.BindEnv(KeyTimeout, "N8N_TIMEOUT")
 
 	home, err := os.UserHomeDir()
 	if err == nil {
@@ -57,6 +62,11 @@ func BaseURL() string {
 
 func APIKey() string {
 	return viper.GetString(KeyAPIKey)
+}
+
+// Timeout bounds each HTTP request to the n8n instance. 0 disables it.
+func Timeout() time.Duration {
+	return viper.GetDuration(KeyTimeout)
 }
 
 func Output() string {

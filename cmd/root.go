@@ -38,6 +38,7 @@ func init() {
 	pf.String("output", "summary", "output mode: summary, resolved, raw")
 	pf.Bool("json", false, "force JSON output")
 	pf.Bool("yaml", false, "force YAML output")
+	pf.Duration("timeout", config.DefaultTimeout, "HTTP request timeout, 0 to disable (env: N8N_TIMEOUT)")
 	pf.Bool("dry-run", false, "preview changes without applying")
 	pf.Bool("quiet", false, "suppress non-essential output")
 	pf.Bool("no-color", false, "disable color output")
@@ -47,6 +48,7 @@ func init() {
 	viper.BindPFlag(config.KeyOutput, pf.Lookup("output"))
 	viper.BindPFlag(config.KeyJSON, pf.Lookup("json"))
 	viper.BindPFlag(config.KeyYAML, pf.Lookup("yaml"))
+	viper.BindPFlag(config.KeyTimeout, pf.Lookup("timeout"))
 	viper.BindPFlag(config.KeyDryRun, pf.Lookup("dry-run"))
 	viper.BindPFlag(config.KeyQuiet, pf.Lookup("quiet"))
 	viper.BindPFlag(config.KeyNoColor, pf.Lookup("no-color"))
@@ -56,7 +58,7 @@ func newService() (*service.Service, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
-	c := client.New(config.BaseURL(), config.APIKey())
+	c := client.New(config.BaseURL(), config.APIKey(), config.Timeout())
 	return service.New(c), nil
 }
 

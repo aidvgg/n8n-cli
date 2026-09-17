@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"n8n-cli/internal/client"
 )
@@ -72,7 +73,7 @@ func TestRenameNodePreservesNodeSettings(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	svc := New(client.New(srv.URL, "test-key"))
+	svc := New(client.New(srv.URL, "test-key", 5*time.Second))
 	node, err := svc.RenameNode("wf-1", "Webhook", "Entry Point", false)
 	if err != nil {
 		t.Fatalf("rename node: %v", err)

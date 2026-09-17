@@ -1,8 +1,11 @@
 package client
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"sort"
 	"testing"
+	"time"
 )
 
 func TestSanitizeWorkflowBody(t *testing.T) {
@@ -88,5 +91,30 @@ func TestSanitizeWorkflowBodyMinimal(t *testing.T) {
 	clean := sanitizeWorkflowBody(body)
 	if len(clean) != 3 {
 		t.Errorf("expected 3 keys, got %d: %v", len(clean), clean)
+	}
+}
+
+func TestRequestTimeout(t *testing.T) {
+	block := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		<-block
+	}))
+	defer srv.Close()
+	defer close(block)
+
+	c := New(srv.URL, "test-key", 50*time.Millisecond)
+	done := make(chan error, 1)
+	go func() {
+		_, err := c.GetWorkflow("wf-1")
+		done <- err
+	}()
+
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("expected a timeout error, got nil")
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("request did not time out")
 	}
 }
