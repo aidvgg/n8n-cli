@@ -4,7 +4,9 @@
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-AI-agent-friendly CLI for [n8n](https://n8n.io) workflow automation. Exposes **node-level operations** via a parser layer on top of the n8n REST API, so you can list, inspect, create, and modify individual nodes without reading or rewriting entire workflow JSON.
+A command-line tool that lets an AI agent change one step of an [n8n](https://n8n.io) automation without touching the rest.
+
+n8n's own API only reads and writes a whole workflow at once. An agent that wants to fix one step has to download everything, edit a large JSON file by hand, and upload it again, which is where workflows get broken. n8n-cli gives each step its own commands: list, inspect, add, update, rename, connect, delete.
 
 
 ## Why n8n-cli?
@@ -15,7 +17,7 @@ The native n8n API only offers workflow-level CRUD. To change a single node, you
 fetch → parse → mutate → rehydrate → save
 ```
 
-Every node gets a stable ref (`n0`, `n1`, …) by array position, so agents and scripts can address nodes without fragile name lookups.
+Every node gets a short ref (`n0`, `n1`, …) by array position, so agents and scripts can address nodes without fragile name lookups. Refs are positional: deleting a node renumbers the ones after it, so list the nodes again after a delete.
 
 ## Installation
 
